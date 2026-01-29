@@ -17,6 +17,7 @@ Bir Bilgisayar Mühendisliği öğrencisi olarak bu projede odaklandığım nokt
 * **Benim Rolüm:** Projenin mantıksal çerçevesini, puanlama algoritmasını (hangi verinin ne kadar ağırlığı olacağını), veri yapısını ve kullanıcı deneyimini (UX) ben kurguladım.
 * **AI Rolü:** Kurguladığım mantık çerçevesinde; HTML yapısı, CSS stilleri ve JavaScript fonksiyonlarının yazımında **LLM (Large Language Model)** araçlarından asistan olarak faydalandım.
 * **Veri Seti:** Binlerce satırlık veriyi elle girmek yerine, araçların teknik verilerini simüle eden ve bunları JSON formatına dönüştüren bir **Python otomasyon scripti** tasarladım.
+* **Taslak:** Projeye şimdilik bir taslak olarak bakılabilir.Tabiki de eksikleri var ancak benim aktarmak/anlatmak istediğim şimdilik sadece fikir ve taslak olsa da zamanla gerçek bir projeye dönüştürülebilecek olmasıdır.
 
 ---
 
