@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OtoKıyas-Araç Karşılaştır</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #f3f4f6; 
+            --white: #ffffff; 
+            --border: #e5e7eb; 
+            --text: #111827;
+            --blue: #2563eb; 
+            --green: #16a34a; 
+            --orange: #ea580c; 
+            --red: #dc2626;
+        }
+        
+        * { box-sizing: border-box; }
+        body { font-family: 'Roboto Flex', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 120px; }
+        
+        /* CONTAINER & LAYOUT */
+        .container { max-width: 1200px; margin: 0 auto; background: var(--white); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+
+        /* HEADER */
+        header { 
+            padding: 20px 30px; 
+            background: #fff; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.5px; }
+        .logo span { color: var(--blue); }
+        
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 50%;
+        }
+        .search-bar { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 8px; 
+            font-family: inherit; 
+            font-size: 0.95rem;
+            transition: 0.3s;
+        }
+        .search-bar:focus { border-color: var(--blue); outline: none; }
+        .result-count { font-size: 0.9rem; color: #6b7280; font-weight: 600; white-space: nowrap; }
+
+        /* ANA IZGARA (SIDEBAR + LISTE) */
+        .main-grid {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        /* SIDEBAR (SOL PANEL) */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: #fff;
+            border-right: 1px solid var(--border);
+            padding: 25px;
+            position: sticky;
+            top: 85px; /* Header yüksekliği kadar boşluk */
+            height: calc(100vh - 85px);
+            overflow-y: auto;
+        }
+
+        .filter-group { margin-bottom: 30px; }
+        .filter-group h3 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; color: #9ca3af; margin-bottom: 15px; font-weight: 800; }
+        
+        .filter-options { display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; }
+        
+        /* Checkbox Stili */
+        .filter-label { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #4b5563; cursor: pointer; transition: 0.2s; }
+        .filter-label:hover { color: var(--blue); }
+        .filter-label input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--blue); cursor: pointer; }
+
+        /* Range Inputları */
+        .range-inputs { display: flex; gap: 10px; }
+        .range-inputs input { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.9rem; text-align: center; }
+
+        .btn-reset { width: 100%; padding: 12px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; font-weight: 700; color: #374151; cursor: pointer; transition: 0.2s; }
+        .btn-reset:hover { background: #e5e7eb; color: #000; }
+
+        /* LİSTE ALANI (SAĞ PANEL) */
+        .content { flex-grow: 1; padding-bottom: 50px; }
+
+        .car-item { 
+            display: flex; 
+            padding: 25px 30px; 
+            border-bottom: 1px solid var(--border); 
+            transition: 0.2s; 
+            cursor: pointer; 
+            position: relative; 
+        }
+        .car-item:hover { background: #f9fafb; }
+        
+        .img-box { width: 180px; height: 130px; flex-shrink: 0; margin-right: 25px; background: #e5e7eb; border-radius: 8px; overflow: hidden; position: relative; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .car-item:hover .img-box img { transform: scale(1.05); }
+        .year-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.8); color: white; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; font-weight: 700; }
+
+        .info-box { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .brand-model { font-size: 1.4rem; font-weight: 800; color: #111; margin-bottom: 5px; }
+        .engine-text { color: #6b7280; font-size: 0.95rem; display: flex; gap: 10px; align-items: center; font-weight: 500; }
+        
+        .specs-mini { display: flex; gap: 10px; margin-top: 15px; }
+        .s-mini { background: #f3f4f6; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; color: #374151; font-weight: 600; border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 6px; }
+        
+        .score-box { width: 90px; text-align: right; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; }
+        .score-val { font-size: 2rem; font-weight: 900; line-height: 1; }
+        .score-lbl { font-size: 0.7rem; color: #9ca3af; font-weight: 700; letter-spacing: 1px; margin-top: 5px; }
+
+        /* Compare Checkbox */
+        .compare-label { 
+            margin-top: auto; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 0.9rem; 
+            color: #4b5563; 
+            font-weight: 600; 
+            cursor: pointer; 
+            padding: 5px 0; 
+            user-select: none;
+        }
+        .compare-label:hover { color: var(--blue); }
+        .compare-label input { width: 18px; height: 18px; accent-color: var(--blue); cursor: pointer; }
+
+        /* Colors */
+        .c-green { color: var(--green); } .c-orange { color: var(--orange); } .c-red { color: var(--red); }
+
+        /* BUTTON LOAD MORE */
+        .btn-load { display: block; margin: 40px auto; padding: 15px 50px; background: white; border: 2px solid #e5e7eb; border-radius: 8px; font-weight: 800; color: #374151; cursor: pointer; transition: 0.2s; }
+        .btn-load:hover { background: #f9fafb; border-color: #d1d5db; }
+
+        /* --- MODAL & COMPARE STYLES --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 200; display: none; justify-content: center; align-items: center; }
+        .modal { background: white; width: 95%; max-width: 1000px; max-height: 90vh; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .modal-header { padding: 20px 30px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; }
+        .modal-body { padding: 30px; overflow-y: auto; }
+
+        .detail-top { display: flex; gap: 30px; margin-bottom: 30px; }
+        .d-img { width: 350px; height: 260px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .d-title { font-size: 2.2rem; font-weight: 900; margin: 0; line-height: 1.1; }
+        .d-sub { font-size: 1.3rem; color: #6b7280; margin-top: 5px; }
+
+        /* COMPARE BAR */
+        .compare-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e5e7eb; padding: 20px 40px; display: flex; justify-content: space-between; transform: translateY(120%); transition: 0.3s; z-index: 100; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); }
+        .compare-bar.active { transform: translateY(0); }
+        .thumbs { display: flex; gap: 15px; }
+        .thumb-wrap { position: relative; }
+        .thumb { width: 80px; height: 55px; border-radius: 6px; object-fit: cover; border: 2px solid #e5e7eb; }
+        .thumb-del { position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; background: var(--red); color: white; border-radius: 50%; text-align: center; line-height: 20px; font-size: 12px; cursor: pointer; border: 2px solid white; font-weight: bold; }
+        .btn-comp { background: #111; color: white; border: none; padding: 0 35px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 1rem; letter-spacing: 0.5px; }
+        
+        .comp-table { width: 100%; border-collapse: collapse; text-align: center; }
+        .comp-table td { padding: 15px; border: 1px solid #e5e7eb; vertical-align: middle; font-size: 1rem; color: #4b5563; }
+        .comp-table td:first-child { text-align: left; background: #f9fafb; font-weight: 600; width: 20%; color: #374151; }
+        .comp-img { width: 140px; height: 100px; object-fit: cover; border-radius: 6px; }
+        .winner-cell { font-weight: 900 !important; color: #000 !important; background-color: #f3f4f6; border: 2px solid #d1d5db !important; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="logo">Oto<span>Kıyas</span> Pro</div>
+        <div class="search-group">
+            <input type="text" class="search-bar" placeholder="Araç, model veya motor ara..." id="searchName" onkeyup="masterFilter()">
+            <div class="result-count" id="resCount">Yükleniyor...</div>
+        </div>
+    </header>
+
+    <div class="main-grid">
+        <aside class="sidebar">
+            <div class="filter-group">
+                <h3>Markalar</h3>
+                <div id="filter-brands" class="filter-options">
+                    </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Yakıt Tipi</h3>
+                <div id="filter-fuels" class="filter-options">
+                    </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Model Yılı</h3>
+                <div class="range-inputs">
+                    <input type="number" id="minYear" placeholder="Min" oninput="masterFilter()">
+                    <input type="number" id="maxYear" placeholder="Max" oninput="masterFilter()">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h3>Güç (HP)</h3>
+                <div class="range-inputs">
+                    <input type="number" id="minHp" placeholder="Min" oninput="masterFilter()">
+                    <input type="number" id="maxHp" placeholder="Max" oninput="masterFilter()">
+                </div>
+            </div>
+
+            <button class="btn-reset" onclick="resetFilters()">Filtreleri Temizle</button>
+        </aside>
+
+        <main class="content">
+            <div id="list"></div>
+            <button class="btn-load" id="btnLoad" onclick="loadMore()">Daha Fazla Göster</button>
+        </main>
+    </div>
+</div>
+
+<div class="compare-bar" id="compareBar">
+    <div class="thumbs" id="thumbs"></div>
+    <button class="btn-comp" onclick="openCompModal()">KARŞILAŞTIR</button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target === this) closeModal()">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 style="margin:0" id="mTitle"></h2>
+            <button onclick="closeModal()" style="border:none; background:none; font-size:2rem; cursor:pointer; color:#9ca3af">&times;</button>
+        </div>
+        <div class="modal-body" id="mBody"></div>
+    </div>
+</div>
+
+<script src="gercek_arac_verileri.js"></script>
+
+<script>
+    const listDiv = document.getElementById('list');
+    const resCountDiv = document.getElementById('resCount');
+    let visibleCount = 20;
+    let filtered = [];
+    let selected = [];
+
+    // --- BAŞLANGIÇ ---
+    if(typeof carData !== 'undefined') {
+        initFilters(); // 1. Filtreleri oluştur
+        masterFilter(); // 2. Listeyi getir
+    } else {
+        listDiv.innerHTML = "<h3 style='color:red; text-align:center; padding:50px'>Veri dosyası (gercek_arac_verileri.js) bulunamadı!</h3>";
+    }
+
+    // --- 1. OTOMATİK FİLTRE OLUŞTURUCU ---
+    function initFilters() {
+        // Benzersiz Markaları ve Yakıtları bul
+        const brands = [...new Set(carData.map(c => c.brand))].sort();
+        const fuels = [...new Set(carData.map(c => c.fuel))].sort();
+
+        createCheckboxOptions('filter-brands', brands, 'brand');
+        createCheckboxOptions('filter-fuels', fuels, 'fuel');
+    }
+
+    function createCheckboxOptions(containerId, dataArray, type) {
+        const container = document.getElementById(containerId);
+        let html = '';
+        dataArray.forEach(item => {
+            html += `
+            <label class="filter-label">
+                <input type="checkbox" value="${item}" onchange="masterFilter()" data-type="${type}">
+                ${item}
+            </label>`;
+        });
+        container.innerHTML = html;
+    }
+
+    // --- 2. ANA FİLTRE MOTORU ---
+    function masterFilter() {
+        visibleCount = 20; // Filtre değişince başa dön
+        
+        // Girdileri Al
+        const selectedBrands = Array.from(document.querySelectorAll('input[data-type="brand"]:checked')).map(cb => cb.value);
+        const selectedFuels = Array.from(document.querySelectorAll('input[data-type="fuel"]:checked')).map(cb => cb.value);
+        const searchName = document.getElementById('searchName').value.toLowerCase();
+        const minYear = parseInt(document.getElementById('minYear').value) || 0;
+        const maxYear = parseInt(document.getElementById('maxYear').value) || 9999;
+        const minHp = parseInt(document.getElementById('minHp').value) || 0;
+        const maxHp = parseInt(document.getElementById('maxHp').value) || 9999;
+
+        // Veriyi Süz
+        filtered = carData.filter(c => {
+            const brandMatch = selectedBrands.length === 0 || selectedBrands.includes(c.brand);
+            const fuelMatch = selectedFuels.length === 0 || selectedFuels.includes(c.fuel);
+            const nameMatch = (c.brand + " " + c.model + " " + c.engine_name).toLowerCase().includes(searchName);
+            const yearMatch = c.year >= minYear && c.year <= maxYear;
+            const hpMatch = c.hp >= minHp && c.hp <= maxHp;
+
+            return brandMatch && fuelMatch && nameMatch && yearMatch && hpMatch;
+        });
+
+        resCountDiv.innerText = `${filtered.length} araç bulundu`;
+        render();
+    }
+
+    function resetFilters() {
+        document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+        document.getElementById('searchName').value = '';
+        document.querySelectorAll('.range-inputs input').forEach(el => el.value = '');
+        masterFilter();
+    }
+
+    // --- 3. LİSTELEME ---
+    function render() {
+        const show = filtered.slice(0, visibleCount);
+        listDiv.innerHTML = "";
+        
+        if(show.length === 0) { 
+            listDiv.innerHTML = `
+                <div style="text-align:center; padding:60px; color:#6b7280">
+                    <i class="fas fa-search" style="font-size:40px; margin-bottom:20px; color:#d1d5db"></i><br>
+                    Aradığınız kriterlere uygun araç bulunamadı.
+                </div>`; 
+            document.getElementById('btnLoad').style.display = 'none';
+            return; 
+        }
+
+        show.forEach(c => {
+            const uid = createUID(c);
+            const isSel = selected.some(s => createUID(s) === uid);
+            let clr = c.score >= 80 ? 'c-green' : (c.score >= 65 ? 'c-orange' : 'c-red');
+
+            const html = `
+            <div class="car-item" onclick="openDetail('${uid}')">
+                <div class="img-box">
+                    <img src="${c.image}" loading="lazy">
+                    <div class="year-badge">${c.year}</div>
+                </div>
+                <div class="info-box">
+                    <div>
+                        <div class="brand-model">${c.brand} ${c.model}</div>
+                        <div class="engine-text">${c.engine_name} • ${c.hp} HP • ${c.fuel}</div>
+                    </div>
+                    <div class="specs-mini">
+                        <div class="s-mini"><i class="fas fa-tachometer-alt"></i> ${c.acc} sn</div>
+                        <div class="s-mini"><i class="fas fa-gas-pump"></i> ${c.cons} lt</div>
+                    </div>
+                    
+                    <label class="compare-label" onclick="event.stopPropagation()">
+                        <input type="checkbox" onchange="toggleSel('${uid}', this)" ${isSel?'checked':''}>
+                        Karşılaştır
+                    </label>
+                </div>
+                <div class="score-box">
+                    <div class="score-val ${clr}">${c.score}</div>
+                    <div class="score-lbl">PUAN</div>
+                </div>
+            </div>`;
+            listDiv.innerHTML += html;
+        });
+
+        const btn = document.getElementById('btnLoad');
+        if(visibleCount >= filtered.length) btn.style.display = 'none'; else btn.style.display = 'block';
+    }
+
+    function createUID(c) { return (c.brand+c.model+c.year+c.engine_name).replace(/\s/g, ''); }
+    function loadMore() { visibleCount+=20; render(); }
+
+    // --- 4. DETAY VE KARŞILAŞTIRMA (Önceki Fonksiyonlar) ---
+    function openDetail(uid) {
+        const c = carData.find(x => createUID(x) === uid);
+        const mTitle = document.getElementById('mTitle');
+        const mBody = document.getElementById('mBody');
+        const modal = document.getElementById('modalOverlay');
+
+        mTitle.innerText = "Teknik Özellikler";
+        let clr = c.score >= 80 ? '#22c55e' : (c.score >= 65 ? '#f59e0b' : '#ef4444');
+
+        mBody.innerHTML = `
+        <div class="detail-top">
+            <img src="${c.image}" class="d-img">
+            <div class="d-info">
+                <h1 class="d-title">${c.brand} ${c.model}</h1>
+                <div class="d-sub">${c.year} Model • ${c.engine_name}</div>
+                <div style="font-size:3rem; font-weight:900; margin-top:20px; color:${clr}">
+                    ${c.score} <span style="font-size:1.2rem; color:#9ca3af; font-weight:600">/ 100</span>
+                </div>
+            </div>
+        </div>
+        <h3 style="border-bottom:1px solid #e5e7eb; padding-bottom:10px; margin-bottom:20px">Fabrika Verileri</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
+            ${techItem('Güç', c.hp + ' HP')}
+            ${techItem('Tork', c.torque + ' Nm')}
+            ${techItem('0-100', c.acc + ' sn')}
+            ${techItem('Maks Hız', c.top_speed + ' km/s')}
+            ${techItem('Tüketim', c.cons + ' lt')}
+            ${techItem('Bagaj', c.baggage + ' lt')}
+        </div>
+        `;
+        modal.style.display = 'flex';
+    }
+
+    function techItem(lbl, val) {
+        return `<div style="background:#f9fafb; padding:15px; border-radius:8px; display:flex; justify-content:space-between; border:1px solid #f3f4f6;">
+            <span style="color:#6b7280; font-weight:600">${lbl}</span>
+            <span style="font-weight:800; color:#111">${val}</span>
+        </div>`;
+    }
+
+    function toggleSel(uid, cb) {
+        const c = carData.find(x => createUID(x) === uid);
+        if(cb.checked) {
+            if(selected.length>=4) { alert('Maksimum 4 araç'); cb.checked=false; return; }
+            selected.push(c);
+        } else {
+            selected = selected.filter(x => createUID(x) !== uid);
+        }
+        updateBar();
+    }
+
+    function updateBar() {
+        const b = document.getElementById('compareBar');
+        const t = document.getElementById('thumbs');
+        if(selected.length>0) b.classList.add('active'); else b.classList.remove('active');
+        t.innerHTML = "";
+        selected.forEach((c, i) => {
+            t.innerHTML += `<div class="thumb-wrap"><img src="${c.image}" class="thumb"><div class="thumb-del" onclick="remSel(${i})">x</div></div>`;
+        });
+    }
+
+    function remSel(i) { selected.splice(i,1); render(); updateBar(); }
+
+    function getWinnerClass(carValue, allValues, type) {
+        if (!allValues || allValues.length < 2) return '';
+        const numericValues = allValues.map(v => parseFloat(v));
+        const currentVal = parseFloat(carValue);
+        let bestVal = (type === 'low') ? Math.min(...numericValues) : Math.max(...numericValues);
+        return currentVal === bestVal ? 'winner-cell' : '';
+    }
+
+    function openCompModal() {
+        if(selected.length<2) return;
+        const mTitle = document.getElementById('mTitle');
+        const mBody = document.getElementById('mBody');
+        const modal = document.getElementById('modalOverlay');
+        mTitle.innerText = "Karşılaştırma Tablosu";
+
+        let h = `<table class="comp-table"><tbody>`;
+        h += `<tr><td>Araç</td>` + selected.map(c=>`<td><img src="${c.image}" class="comp-img"></td>`).join('') + `</tr>`;
+        h += `<tr><td>Model</td>` + selected.map(c=>`<td><b>${c.brand} ${c.model}</b><br>${c.year}</td>`).join('') + `</tr>`;
+        
+        const scores = selected.map(c => c.score);
+        h += `<tr><td>Genel Puan</td>` + selected.map(c=>`<td class="${getWinnerClass(c.score, scores, 'high')}" style="font-size:1.5rem; color:${c.score>=80?'#16a34a':(c.score>=65?'#ea580c':'#dc2626')}">${c.score}</td>`).join('') + `</tr>`;
+        
+        const cons = selected.map(c => c.cons);
+        h += `<tr><td>Tüketim</td>` + selected.map(c=>`<td class="${getWinnerClass(c.cons, cons, 'low')}">${c.cons} lt</td>`).join('') + `</tr>`;
+        
+        const hps = selected.map(c => c.hp);
+        h += `<tr><td>Güç</td>` + selected.map(c=>`<td class="${getWinnerClass(c.hp, hps, 'high')}">${c.hp} HP</td>`).join('') + `</tr>`;
+        
+        const trq = selected.map(c => c.torque);
+        h += `<tr><td>Tork</td>` + selected.map(c=>`<td class="${getWinnerClass(c.torque, trq, 'high')}">${c.torque} Nm</td>`).join('') + `</tr>`;
+        
+        const accs = selected.map(c => c.acc);
+        h += `<tr><td>0-100</td>` + selected.map(c=>`<td class="${getWinnerClass(c.acc, accs, 'low')}">${c.acc} sn</td>`).join('') + `</tr>`;
+        
+        const spd = selected.map(c => c.top_speed);
+        h += `<tr><td>Maks Hız</td>` + selected.map(c=>`<td class="${getWinnerClass(c.top_speed, spd, 'high')}">${c.top_speed} km/s</td>`).join('') + `</tr>`;
+        
+        const bag = selected.map(c => c.baggage);
+        h += `<tr><td>Bagaj</td>` + selected.map(c=>`<td class="${getWinnerClass(c.baggage, bag, 'high')}">${c.baggage} lt</td>`).join('') + `</tr>`;
+        
+        h += `</tbody></table>`;
+        mBody.innerHTML = h;
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('modalOverlay').style.display='none'; }
+</script>
+
+</body>
+</html>
